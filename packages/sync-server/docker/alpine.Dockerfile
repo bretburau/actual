@@ -58,7 +58,7 @@ COPY --from=builder /app/packages/sync-server/package.json ./
 COPY --from=builder /app/packages/sync-server/build ./
 
 # Add entrypoint script to handle migrations and permissions
-COPY ./entrypoint.sh /app/entrypoint.sh
+COPY packages/sync-server/docker/entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
 ENTRYPOINT ["/sbin/tini","-g",  "--"]
