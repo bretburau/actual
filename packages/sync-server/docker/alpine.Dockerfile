@@ -62,9 +62,6 @@ COPY --from=builder /app/node_modules /app/node_modules
 COPY --from=builder /app/packages/sync-server/package.json ./
 COPY --from=builder /app/packages/sync-server/build ./
 
-# Copy built sync-server artifacts  
-COPY --from=builder /app/packages/sync-server/build ./
-
 # Copy built web UI (package.json and build directory) to expected node_modules location
 COPY --from=builder /app/packages/desktop-client/package.json /app/node_modules/@actual-app/web/package.json
 COPY --from=builder /app/packages/desktop-client/build /app/node_modules/@actual-app/web/build
