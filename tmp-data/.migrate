@@ -1,0 +1,33 @@
+{
+  "lastRun": "1763873568237-server-global-prefs.js",
+  "migrations": [
+    {
+      "title": "1694360000000-create-folders.js",
+      "timestamp": 1771295709218
+    },
+    {
+      "title": "1694360479680-create-account-db.js",
+      "timestamp": 1771295709404
+    },
+    {
+      "title": "1694362247011-create-secret-table.js",
+      "timestamp": 1771295709463
+    },
+    {
+      "title": "1702667624000-rename-nordigen-secrets.js",
+      "timestamp": 1771295709464
+    },
+    {
+      "title": "1718889148000-openid.js",
+      "timestamp": 1771295709515
+    },
+    {
+      "title": "1719409568000-multiuser.js",
+      "timestamp": 1771295709565
+    },
+    {
+      "title": "1763873568237-server-global-prefs.js",
+      "timestamp": 1771295709614
+    }
+  ]
+}

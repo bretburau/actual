@@ -29,16 +29,16 @@ FROM deps AS builder
 
 WORKDIR /app
 
-# Copy all packages and root config files so we can build web and server artifacts
-COPY tsconfig.json eslint.config.mjs vite.config.mts vitest.config.ts lage.config.js ./
+# Copy root config files so we can build web and server artifacts
+COPY tsconfig.json lage.config.js ./
 COPY packages ./packages
 
-# Build loot-core first (required by web)
-RUN yarn workspace loot-core build:web
-
-# Build web UI and server
+# Build web UI and server (will build loot-core and dependencies automatically)
 RUN yarn workspace @actual-app/web build
 RUN yarn workspace @actual-app/sync-server build
+
+# Clean prod node_modules from builder (corepack is available here)
+RUN yarn workspaces focus @actual-app/sync-server --production
 
 FROM alpine:3.22 AS prod
 
@@ -55,21 +55,16 @@ RUN mkdir /data && chown -R ${USERNAME}:${USERNAME} /data
 WORKDIR /app
 ENV NODE_ENV=production
 
-# Copy root config and all package.json files for production install
-COPY package.json yarn.lock .yarnrc.yml ./
-COPY .yarn ./.yarn
-COPY packages/api/package.json packages/api/package.json
-COPY packages/component-library/package.json packages/component-library/package.json
-COPY packages/crdt/package.json packages/crdt/package.json
-COPY packages/desktop-client/package.json packages/desktop-client/package.json
-COPY packages/desktop-electron/package.json packages/desktop-electron/package.json
-COPY packages/eslint-plugin-actual/package.json packages/eslint-plugin-actual/package.json
-COPY packages/loot-core/package.json packages/loot-core/package.json
-COPY packages/sync-server/package.json packages/sync-server/package.json
-COPY packages/plugins-service/package.json packages/plugins-service/package.json
+# Copy pre-built production node_modules from builder
+COPY --from=builder /app/node_modules /app/node_modules
 
-# Install production dependencies only
-RUN yarn workspaces focus @actual-app/sync-server --production
+# Copy built sync-server artifacts
+COPY --from=builder /app/packages/sync-server/package.json ./
+COPY --from=builder /app/packages/sync-server/build ./
+
+# Copy built web UI (package.json and build directory) to expected node_modules location
+COPY --from=builder /app/packages/desktop-client/package.json /app/node_modules/@actual-app/web/package.json
+COPY --from=builder /app/packages/desktop-client/build /app/node_modules/@actual-app/web/build
 
 # Copy built sync-server artifacts
 COPY --from=builder /app/packages/sync-server/build ./
