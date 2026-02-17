@@ -22,26 +22,25 @@ COPY packages/plugins-service/package.json packages/plugins-service/package.json
 # Avoiding memory issues with ARMv7
 RUN if [ "$(uname -m)" = "armv7l" ]; then yarn config set taskPoolConcurrency 2; yarn config set networkConcurrency 5; fi
 
-# Focus the workspaces in production mode
-RUN if [ "$(uname -m)" = "armv7l" ]; then npm_config_build_from_source=true yarn workspaces focus @actual-app/sync-server --production; else yarn workspaces focus @actual-app/sync-server --production; fi
+# Install all dependencies (including dev deps) so we can build the web UI
+RUN yarn install --network-concurrency 6
 
 FROM deps AS builder
 
 WORKDIR /app
 
+# Copy source so we can build web and server artifacts inside the image
+COPY packages/desktop-client ./packages/desktop-client
 COPY packages/sync-server ./packages/sync-server
 
-# Remove symbolic links for @actual-app/web and @actual-app/sync-server
-RUN rm -rf ./node_modules/@actual-app/web ./node_modules/@actual-app/sync-server
-
-# Copy in the @actual-app/web artifacts manually, so we don't need the entire packages folder
-COPY packages/desktop-client/package.json ./node_modules/@actual-app/web/package.json
-COPY packages/desktop-client/build ./node_modules/@actual-app/web/build
+# Build web UI and server
+RUN yarn workspace @actual-app/web build
+RUN yarn workspace @actual-app/sync-server build
 
 FROM alpine:3.22 AS prod
 
 # Minimal runtime dependencies
-RUN apk add --no-cache nodejs tini
+RUN apk add --no-cache nodejs tini su-exec
 
 # Create a non-root user
 ARG USERNAME=actual
@@ -58,6 +57,10 @@ COPY --from=builder /app/node_modules /app/node_modules
 COPY --from=builder /app/packages/sync-server/package.json ./
 COPY --from=builder /app/packages/sync-server/build ./
 
+# Add entrypoint script to handle migrations and permissions
+COPY ./entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
 ENTRYPOINT ["/sbin/tini","-g",  "--"]
 EXPOSE 5006
-CMD ["node", "app.js"]
+CMD ["/app/entrypoint.sh"]
