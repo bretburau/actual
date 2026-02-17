@@ -44,7 +44,12 @@ RUN cd packages/loot-core && \
     cd ../../../loot-core && \
     rm -rf lib-dist/browser && \
     rm -rf ../desktop-client/public/kcab && \
-    NODE_ENV=production yarn vite build --config ./vite.browser.config.ts && \
+    cp ../../../node_modules/@jlongster/sql.js/dist/sql-wasm.wasm ../desktop-client/public/sql-wasm.wasm && \
+    cd bin && \
+    NODE_ENV=production yarn vite build --config ../vite.config.ts --mode production && \
+    cd .. && \
+    mkdir ../desktop-client/public/kcab && \
+    cp -r lib-dist/browser/* ../desktop-client/public/kcab/ && \
     cd ../..
 
 # Build web UI with IS_GENERIC_BROWSER=1 and backend worker hash
