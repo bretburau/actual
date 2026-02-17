@@ -23,7 +23,7 @@ COPY packages/plugins-service/package.json packages/plugins-service/package.json
 RUN if [ "$(uname -m)" = "armv7l" ]; then yarn config set taskPoolConcurrency 2; yarn config set networkConcurrency 5; fi
 
 # Install all dependencies (including dev deps) so we can build the web UI
-RUN yarn install --network-concurrency 6
+RUN yarn install
 
 FROM deps AS builder
 
