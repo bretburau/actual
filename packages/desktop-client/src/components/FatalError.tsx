@@ -225,11 +225,13 @@ export function FatalError({ error }: FatalErrorProps) {
           <RenderUIError />
         )}
 
-        <Paragraph>
-          <Button onPress={() => window.Actual.relaunch()}>
-            <Trans>Restart app</Trans>
-          </Button>
-        </Paragraph>
+        {typeof window.Actual !== 'undefined' && (
+          <Paragraph>
+            <Button onPress={() => window.Actual?.relaunch?.()}>
+              <Trans>Restart app</Trans>
+            </Button>
+          </Paragraph>
+        )}
         <Paragraph isLast style={{ fontSize: 11 }}>
           <Link variant="text" onClick={() => setShowError(state => !state)}>
             <Trans>Show Error</Trans>
