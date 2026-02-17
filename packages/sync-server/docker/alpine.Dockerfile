@@ -33,11 +33,17 @@ WORKDIR /app
 COPY tsconfig.json lage.config.js ./
 COPY packages ./packages
 
-# Build loot-core browser artifacts first using NODE_ENV=production
+# Build loot-core browser artifacts (inline the build-browser script logic)
 # This creates the kcab worker files in desktop-client/public/kcab/ with hash in filename
 RUN cd packages/loot-core && \
-    chmod +x bin/build-browser bin/copy-migrations && \
-    NODE_ENV=production yarn run build:browser && \
+    mkdir -p ../desktop-client/public/data && \
+    node bin/copy-migrations ../desktop-client/public/data && \
+    cd ../desktop-client/public/data && \
+    find * -type f | sort > ../data-file-index.txt && \
+    cd ../../../loot-core && \
+    rm -rf lib-dist/browser && \
+    rm -rf ../desktop-client/public/kcab && \
+    NODE_ENV=production yarn vite build --config ./vite.browser.config.ts && \
     cd ../..
 
 # Build web UI with IS_GENERIC_BROWSER=1 and backend worker hash
