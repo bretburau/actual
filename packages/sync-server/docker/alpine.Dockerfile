@@ -33,8 +33,7 @@ WORKDIR /app
 COPY tsconfig.json lage.config.js ./
 COPY packages ./packages
 
-# Build API first (generates injected.js) and web UI and server (will build loot-core and dependencies automatically)
-RUN yarn workspace @actual-app/api build
+# Build web UI and server (will build loot-core and dependencies automatically)
 RUN yarn workspace @actual-app/web build
 RUN yarn workspace @actual-app/sync-server build
 
@@ -67,7 +66,7 @@ COPY --from=builder /app/packages/sync-server/build ./
 COPY --from=builder /app/packages/desktop-client/package.json /app/node_modules/@actual-app/web/package.json
 COPY --from=builder /app/packages/desktop-client/build /app/node_modules/@actual-app/web/build
 
-# Copy API's injected.js to web build so sync-server serves it
+# Copy API's injected.js source file to web build so sync-server serves it
 COPY --from=builder /app/packages/api/injected.js /app/node_modules/@actual-app/web/build/injected.js
 
 # Copy built sync-server artifacts
