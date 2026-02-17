@@ -36,8 +36,9 @@ COPY packages ./packages
 # Build loot-core browser artifacts (inline the build-browser script logic)
 # This creates the kcab worker files in desktop-client/public/kcab/ with hash in filename
 RUN cd packages/loot-core && \
-    mkdir -p ../desktop-client/public/data && \
-    node bin/copy-migrations ../desktop-client/public/data && \
+    mkdir -p ../desktop-client/public/data/migrations && \
+    cp migrations/* ../desktop-client/public/data/migrations/ && \
+    cp default-db.sqlite ../desktop-client/public/data/ && \
     cd ../desktop-client/public/data && \
     find * -type f | sort > ../data-file-index.txt && \
     cd ../../../loot-core && \
