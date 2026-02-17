@@ -33,9 +33,18 @@ WORKDIR /app
 COPY tsconfig.json lage.config.js ./
 COPY packages ./packages
 
-# Build web UI and server (will build loot-core and dependencies automatically)
-# Set IS_GENERIC_BROWSER=1 so browser-preload.browser.js is included, setting window.Actual config
-RUN sh -c 'export IS_GENERIC_BROWSER=1 && yarn workspace @actual-app/web build'
+# Build loot-core browser artifacts first (creates the kcab worker files with hash in filename)
+RUN yarn workspace loot-core run build:browser
+
+# Build web UI with IS_GENERIC_BROWSER=1 and backend worker hash
+# Extract the worker hash from the built filename
+RUN sh -c 'export IS_GENERIC_BROWSER=1 && \
+    WORKER_HASH=$(ls packages/desktop-client/public/kcab/kcab.worker.*.js 2>/dev/null | head -1 | sed "s/.*kcab\.worker\.\(.*\)\.js/\1/") && \
+    echo "Found worker hash: $WORKER_HASH" && \
+    export REACT_APP_BACKEND_WORKER_HASH=$WORKER_HASH && \
+    yarn workspace @actual-app/web build'
+
+# Build sync-server
 RUN yarn workspace @actual-app/sync-server build
 
 # Clean prod node_modules from builder (corepack is available here)
