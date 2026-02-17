@@ -34,7 +34,9 @@ COPY tsconfig.json lage.config.js ./
 COPY packages ./packages
 
 # Build web UI and server (will build loot-core and dependencies automatically)
-RUN IS_GENERIC_BROWSER=1 yarn workspace @actual-app/web build
+# Create .env file so Vite's loadEnv() picks up IS_GENERIC_BROWSER
+RUN echo "IS_GENERIC_BROWSER=1" > packages/desktop-client/.env
+RUN yarn workspace @actual-app/web build
 RUN yarn workspace @actual-app/sync-server build
 
 # Clean prod node_modules from builder (corepack is available here)
