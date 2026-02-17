@@ -33,8 +33,12 @@ WORKDIR /app
 COPY tsconfig.json lage.config.js ./
 COPY packages ./packages
 
-# Build loot-core browser artifacts first (creates the kcab worker files with hash in filename)
-RUN yarn workspace loot-core run build:browser
+# Build loot-core browser artifacts first using NODE_ENV=production
+# This creates the kcab worker files in desktop-client/public/kcab/ with hash in filename
+RUN cd packages/loot-core && \
+    chmod +x bin/build-browser bin/copy-migrations && \
+    NODE_ENV=production yarn run build:browser && \
+    cd ../..
 
 # Build web UI with IS_GENERIC_BROWSER=1 and backend worker hash
 # Extract the worker hash from the built filename
