@@ -35,7 +35,7 @@ COPY packages ./packages
 
 # Build web UI and server (will build loot-core and dependencies automatically)
 # Create .env file so Vite's loadEnv() picks up IS_GENERIC_BROWSER
-RUN echo "IS_GENERIC_BROWSER=1" > packages/desktop-client/.env
+RUN echo "IS_GENERIC_BROWSER=1" > /app/.env
 RUN yarn workspace @actual-app/web build
 RUN yarn workspace @actual-app/sync-server build
 
