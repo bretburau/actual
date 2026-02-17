@@ -1,3 +1,19 @@
+// Add this at the very top of the file, before any other code
+
+console.log('index.tsx loading...');
+console.log('window.Actual:', window.Actual);
+
+if (!window.Actual) {
+  console.error('ERROR: window.Actual is undefined! Checking for injected.js...');
+  // Try to fetch and log injected.js
+  fetch('/injected.js')
+    .then(r => r.text())
+    .then(text => {
+      console.log('injected.js content (first 500 chars):', text.substring(0, 500));
+    })
+    .catch(e => console.error('Failed to fetch injected.js:', e));
+}
+
 // This file will initialize the app if we are in a real browser
 // environment (not electron)
 import './browser-preload';
