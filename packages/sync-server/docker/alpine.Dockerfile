@@ -44,7 +44,7 @@ RUN cd packages/loot-core && \
     cd ../../../loot-core && \
     rm -rf lib-dist/browser && \
     rm -rf ../desktop-client/public/kcab && \
-    cp ../../../node_modules/@jlongster/sql.js/dist/sql-wasm.wasm ../desktop-client/public/sql-wasm.wasm && \
+    cp /app/node_modules/@jlongster/sql.js/dist/sql-wasm.wasm ../desktop-client/public/sql-wasm.wasm && \
     cd bin && \
     NODE_ENV=production yarn vite build --config ../vite.config.ts --mode production && \
     cd .. && \
